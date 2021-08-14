@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+        #allmap {
+            height: 97%;
+            width: 100%;
+        }
+
+        #r-result {
+            width: 100%;
+            font-size: 14px;
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=6c497f51c06477544e5fa6e9bd68f7c3"></script>
+    <title>地图展示</title>
+</head>
+<body>
+    <div id="r-result">
+        <!--文字和文本框--->
+<!--
+        经度: <input id="longitude" type="text" style="width:100px; margin-right:10px;" />
+        纬度: <input id="latitude" type="text" style="width:100px; margin-right:10px;" />
+-->
+		经纬度：<input id="jwd" type="text" style="width:200px; margin-right:10px;" />
+        <!--按钮--->
+        <input type="button" value="定位" onclick="theLocation()" />
+        <input type="button" value="添加标注" onclick="addPoint()" />
+        <input type="button" value="删除标注" onclick="deletePoint()" />
+    </div>
+    <div id="allmap"></div>
+
+    <b id="mouselng">0</b>
+    <b id="mouselat">0</b>
+
+</body>
+</html>
+<script type="text/javascript">
+	// 百度地图API功能
+    var map = new BMap.Map("allmap");             // 创建Map实例
+    var point = new BMap.Point(115.815995, 28.989463);  // 创建点坐标  
+    map.centerAndZoom(point, 12);                 // 初始化地图，设置中心点坐标和地图级别 
+
+    //向地图添加标注
+    var marker = new BMap.Marker(point);        // 创建标注    
+    map.addOverlay(marker);                     // 将标注添加到地图中 
+
+    // 添加带有定位的导航控件
+    var navigationControl = new BMap.NavigationControl({
+        // 靠左上角位置
+        anchor: BMAP_ANCHOR_TOP_LEFT,
+        // LARGE类型
+        type: BMAP_NAVIGATION_CONTROL_LARGE,
+        // 启用显示定位
+        enableGeolocation: true
+    });
+    map.addControl(navigationControl);
+
+
+    //添加地图单击显示GPS事件
+    function showInfo(e) {
+        //alert(e.point.lng + ", " + e.point.lat);//窗口显示点击位置的GPS
+//        document.getElementById("longitude").innerText = e.point.lng;
+//        document.getElementById("latitude").innerText = e.point.lat;  
+		
+        document.getElementById("mouselng").innerHTML = e.point.lng;
+        document.getElementById("mouselat").innerHTML = e.point.lat;
+		
+		document.getElementById("jwd").innerText = e.point.lng + "," + e.point.lat;
+
+    }
+    map.addEventListener("click", showInfo);       //监听事件
+
+	//添加地图类型控件
+	map.addControl(new BMap.MapTypeControl({
+		mapTypes:[
+            BMAP_NORMAL_MAP,
+            BMAP_HYBRID_MAP
+        ]
+    }));
+
+    var opts = { offset: new BMap.Size(100, 20) }
+    map.addControl(new BMap.ScaleControl(opts));//比例尺控件
+
+    //map.addControl(new BMap.ScaleControl());   //比例尺控件
+    map.setCurrentCity("杭州");          // 仅当设置城市信息时，MapTypeControl的切换功能才能可用 
+    map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+    // 用经纬度设置地图中心点
+    function theLocation() {
+        if (document.getElementById("longitude").value != "" && document.getElementById("latitude").value != "" && document.getElementById("jwd").value != "") {
+            map.clearOverlays();
+            var new_point = new BMap.Point(document.getElementById("longitude").value, document.getElementById("latitude").value, document.getElementById("jwd").value);
+            var marker = new BMap.Marker(new_point);  // 创建标注
+            map.addOverlay(marker);              // 将标注添加到地图中            
+            map.panTo(new_point);      //用经纬度设置地图中心点
+        }
+    }
+
+    // 添加标注
+    function addPoint() {
+        if (document.getElementById("longitude").value != "" && document.getElementById("latitude").value != "" && document.getElementById("jwd").value != "") {
+            
+            var new_point = new BMap.Point(document.getElementById("longitude").value, document.getElementById("latitude").value, document.getElementById("jwd").value);
+            var marker = new BMap.Marker(new_point);  // 创建标注
+            map.addOverlay(marker);              // 将标注添加到地图中
+        }
+    }
+
+    // 删除所有标注
+    function deletePoint() {
+
+        //获取地图上所有的覆盖物,并删除
+        //map.clearOverlays();
+
+        //获取地图上所有的覆盖物,并删除
+        var allOverlay = map.getOverlays();
+        for (var i = 0; i < allOverlay.length; i++) {
+            if (allOverlay[i].toString() == "[object Marker]") {
+                map.removeOverlay(allOverlay[i]);              
+            }
+        }
+
+        删除指定经纬度的标注
+        //if (document.getElementById("longitude").value != "" && document.getElementById("latitude").value != "") {
+        //    var new_point = new BMap.Point(document.getElementById("longitude").value, document.getElementById("latitude").value);
+        //    var marker = new BMap.Marker(new_point);  // 创建标注
+        //    map.removeOverlay(marker);
+            
+        //}       
+    }
+
+        map.addEventListener("mousemove", GetlngAndlat);   
+        function GetlngAndlat(e) {
+            if (e.point.lng != null) {
+
+                document.getElementById("mouselng").innerHTML = e.point.lng;
+                document.getElementById("mouselat").innerHTML = e.point.lat;
+            }
+        }
+
+</script>
+
